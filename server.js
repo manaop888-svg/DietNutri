@@ -9,7 +9,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const ai = new GoogleGenAI({ apiKey: process.env.
+AQ.Ab8RN6IZDcaCs2WShMBfJj7ljMLaquc03GQ2UUrfwQT0TdTfkA });
 
 const SYSTEM_INSTRUCTION = `
 You are NutriAI, an expert global nutritionist. Provide accurate calories/macros and suggest diverse, realistic meals from ANY global cuisine (Indian, Mexican, Asian, Mediterranean, etc.). Keep responses concise, engaging, and formatted nicely.
