@@ -6,19 +6,18 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Pulls key from Render environment variables OR direct fallback string
+// Set your API key here (keep the double quotes around your key!)
 const apiKey = process.env.GEMINI_API_KEY || "
 AQ.Ab8RN6IZDcaCs2WShMBfJj7ljMLaquc03GQ2UUrfwQT0TdTfkA";
 const ai = new GoogleGenAI({ apiKey });
 
-const SYSTEM_INSTRUCTION = `You are NutriAI, a world-class nutritionist and chef. Provide accurate macros and helpful food advice.`;
+const SYSTEM_INSTRUCTION = `You are NutriAI, an expert global nutritionist.`;
 
 app.post('/api/chat', async (req, res) => {
     try {
         const { message } = req.body;
         if (!message) return res.status(400).json({ error: "Message is required" });
 
-        // Using gemini-2.5-flash
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
             contents: message,
