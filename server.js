@@ -1,26 +1,35 @@
 import express from 'express';
 import cors from 'cors';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Set your key string directly (or use environment variable)
-const apiKey = process.env.GEMINI_API_KEY || "AQ.Ab8RN6JY2ka-BeQ5RRSAHKN4Ko_fRsCzXcmnhxH5X-39yPyAfg";
-const genAI = new GoogleGenerativeAI(apiKey);
+// ⚠️ Paste your API key here (starts with AQ... or AIza...) inside quotes:
+const API_KEY = process.env.GEMINI_API_KEY || "AQ.Ab8RN6JY2ka-BeQ5RRSAHKN4Ko_fRsCzXcmnhxH5X-39yPyAfg";
 
 // 🌐 1. DIRECT BROWSER TEST ROUTE
 app.get('/', async (req, res) => {
     try {
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-        const result = await model.generateContent("Say 'NutriAI Server is fully operational!'");
-        const responseText = result.response.text();
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: "Say 'NutriAI is online!'" }] }]
+            })
+        });
+
+        const data = await response.json();
         
-        res.send(`<h1>✅ SUCCESS!</h1><p><b>AI Output:</b> ${responseText}</p>`);
-    } catch (error) {
-        console.error("Test Error:", error);
-        res.send(`<h1>❌ ERROR</h1><p>${error.message}</p>`);
+        if (data.error) {
+            return res.send(`<h1>❌ API Error</h1><pre>${JSON.stringify(data.error, null, 2)}</pre>`);
+        }
+
+        const reply = data.candidates[0].content.parts[0].text;
+        res.send(`<h1>✅ SUCCESS!</h1><p><b>AI Response:</b> ${reply}</p>`);
+    } catch (err) {
+        res.send(`<h1>❌ Server Error</h1><p>${err.message}</p>`);
     }
 });
 
@@ -30,13 +39,27 @@ app.post('/api/chat', async (req, res) => {
         const { message } = req.body;
         if (!message) return res.status(400).json({ error: "Message is required" });
 
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-        const result = await model.generateContent(`You are NutriAI, an expert nutritionist. User: ${message}`);
-        const responseText = result.response.text();
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                systemInstruction: { parts: [{ text: "You are NutriAI, an expert global nutritionist." }] },
+                contents: [{ parts: [{ text: message }] }]
+            })
+        });
 
-        res.json({ reply: responseText });
+        const data = await response.json();
+
+        if (data.error) {
+            console.error("Gemini API Error:", data.error);
+            return res.status(500).json({ error: data.error.message });
+        }
+
+        const reply = data.candidates[0].content.parts[0].text;
+        res.json({ reply });
     } catch (error) {
-        console.error("AI Generation Error:", error);
+        console.error("Server Catch Error:", error);
         res.status(500).json({ error: "Failed to generate AI response" });
     }
 });
