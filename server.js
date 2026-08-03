@@ -2,45 +2,45 @@ import express from 'express';
 import cors from 'cors';
 
 const app = express();
+
+// Allow request handling
 app.use(cors());
 app.use(express.json());
 
-// ⚠️ Paste your API key here (starts with AQ... or AIza...) inside quotes:
-const API_KEY = process.env.GEMINI_API_KEY || "AQ.Ab8RN6JY2ka-BeQ5RRSAHKN4Ko_fRsCzXcmnhxH5X-39yPyAfg";
+// Pull key from Render's Environment Variables (or hardcode fallback)
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "YOUR_GEMINI_KEY_HERE";
 
-// 🌐 1. DIRECT BROWSER TEST ROUTE
+// 🌐 1. Home / Diagnostic Route (Opens in Browser)
 app.get('/', async (req, res) => {
     try {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
-        const response = await fetch(url, {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                contents: [{ parts: [{ text: "Say 'NutriAI is online!'" }] }]
+                contents: [{ parts: [{ text: "Respond with: 'Backend status: ACTIVE!'" }] }]
             })
         });
 
         const data = await response.json();
-        
+
         if (data.error) {
-            return res.send(`<h1>❌ API Error</h1><pre>${JSON.stringify(data.error, null, 2)}</pre>`);
+            return res.send(`<h2>❌ API Error Details:</h2><pre>${JSON.stringify(data.error, null, 2)}</pre>`);
         }
 
         const reply = data.candidates[0].content.parts[0].text;
-        res.send(`<h1>✅ SUCCESS!</h1><p><b>AI Response:</b> ${reply}</p>`);
+        res.send(`<h2>✅ Success!</h2><p><b>Gemini Output:</b> ${reply}</p>`);
     } catch (err) {
-        res.send(`<h1>❌ Server Error</h1><p>${err.message}</p>`);
+        res.send(`<h2>❌ Server Error:</h2><p>${err.message}</p>`);
     }
 });
 
-// 💬 2. API CHAT ROUTE
+// 💬 2. Frontend Chat API Route
 app.post('/api/chat', async (req, res) => {
     try {
         const { message } = req.body;
         if (!message) return res.status(400).json({ error: "Message is required" });
 
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
-        const response = await fetch(url, {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -56,13 +56,13 @@ app.post('/api/chat', async (req, res) => {
             return res.status(500).json({ error: data.error.message });
         }
 
-        const reply = data.candidates[0].content.parts[0].text;
-        res.json({ reply });
+        const replyText = data.candidates[0].content.parts[0].text;
+        res.json({ reply: replyText });
     } catch (error) {
-        console.error("Server Catch Error:", error);
-        res.status(500).json({ error: "Failed to generate AI response" });
+        console.error("Server Error:", error);
+        res.status(500).json({ error: "Internal server error" });
     }
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 NutriAI Backend running on port ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 NutriAI Server running on port ${PORT}`));
