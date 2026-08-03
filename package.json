@@ -1,5 +1,5 @@
 {
-  "name": "dietnutri-backend",
+  "name": "nutriai-backend",
   "version": "1.0.0",
   "type": "module",
   "main": "server.js",
@@ -7,7 +7,6 @@
     "start": "node server.js"
   },
   "dependencies": {
-    "@google/generative-ai": "^0.21.0",
     "cors": "^2.8.5",
     "express": "^4.19.2"
   }
