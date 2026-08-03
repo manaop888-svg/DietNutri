@@ -7,7 +7,7 @@ app.use(cors());
 app.use(express.json());
 
 // ⚠️ Put your exact Google AI Studio key inside quotes below
-const genAI = new GoogleGenerativeAI("AQ.Ab8RN6IdP_jplNphfYtGQaksAoR3Ozr1TgMINv6ZTvLmwnHwUQ");
+const genAI = new GoogleGenerativeAI("AQ.Ab8RN6JY2ka-BeQ5RRSAHKN4Ko_fRsCzXcmnhxH5X-39yPyAfg");
 
 app.post('/api/chat', async (req, res) => {
     try {
