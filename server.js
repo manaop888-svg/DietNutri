@@ -1,25 +1,24 @@
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import { GoogleGenAI } from '@google/genai';
-
-dotenv.config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-const ai = new GoogleGenAI({ apiKey: "AQ.Ab8RN6IZDcaCs2WShMBfJj7ljMLaquc03GQ2UUrfwQT0TdTfkA" });
+// Pulls key from Render environment variables OR direct fallback string
+const apiKey = process.env.GEMINI_API_KEY || "
+AQ.Ab8RN6IZDcaCs2WShMBfJj7ljMLaquc03GQ2UUrfwQT0TdTfkA";
+const ai = new GoogleGenAI({ apiKey });
 
-const SYSTEM_INSTRUCTION = `
-You are NutriAI, an expert global nutritionist. Provide accurate calories/macros and suggest diverse, realistic meals from ANY global cuisine (Indian, Mexican, Asian, Mediterranean, etc.). Keep responses concise, engaging, and formatted nicely.
-`;
+const SYSTEM_INSTRUCTION = `You are NutriAI, a world-class nutritionist and chef. Provide accurate macros and helpful food advice.`;
 
 app.post('/api/chat', async (req, res) => {
     try {
         const { message } = req.body;
         if (!message) return res.status(400).json({ error: "Message is required" });
 
+        // Using gemini-2.5-flash
         const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
             contents: message,
