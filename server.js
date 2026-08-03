@@ -8,7 +8,7 @@ app.use(cors());
 app.use(express.json());
 
 // Pull key from Render's Environment Variables (or hardcode fallback)
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "YOUR_GEMINI_KEY_HERE";
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || "AQ.Ab8RN6IFbehS4cqfU22w5-jgMV_BSuSXT3G27kdPPKnqofLjqA";
 
 // 🌐 1. Home / Diagnostic Route (Opens in Browser)
 app.get('/', async (req, res) => {
